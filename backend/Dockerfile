@@ -1,23 +1,35 @@
-# Use official Node.js image
-FROM node:20
+# syntax=docker/dockerfile:1
 
-# Set working directory
+# ---------- Build stage ----------
+FROM node:20-slim AS build
 WORKDIR /app
 
-# Copy package.json and lock files
+# (Optional) tools for native modules; harmless if not used
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 make g++ \
+  && rm -rf /var/lib/apt/lists/*
+
+# 1) Install deps first (cache-friendly)
 COPY package*.json ./
+RUN npm ci
 
-# Install dependencies
-RUN npm install
-
-# Copy the rest of the app
+# 2) Now copy the rest of the source (this is what was missing)
 COPY . .
 
-# Set environment variables (can also be set in Railway dashboard)
-ENV NODE_ENV=production
+# 3) Build Medusa (server + admin)
+RUN npm run build
 
-# Expose Medusa port
+# 4) Trim dev deps for runtime
+RUN npm prune --omit=dev
+
+# ---------- Runtime stage ----------
+FROM node:20-slim AS runtime
+WORKDIR /app
+ENV NODE_ENV=production \
+    PORT=9000
+
+# Bring in built app and pruned node_modules
+COPY --from=build /app /app
+
 EXPOSE 9000
-
-# Run the Medusa server
-CMD ["npm", "run", "start"]
+CMD ["npm", "start"]
