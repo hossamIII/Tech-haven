@@ -4,14 +4,18 @@
 /uploads
 /node_modules
 yarn-error.log
-
-.idea
-
+.medusa-copy
+/.idea
+static
 coverage
+
+.medusa
 
 !src/**
 
 ./tsconfig.tsbuildinfo
+# package-lock.json
+yarn.lock
 medusa-db.sql
 build
 .cache
@@ -22,5 +26,3 @@ build
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
-
-.medusa
