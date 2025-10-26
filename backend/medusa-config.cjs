@@ -1,6 +1,4 @@
-// medusa-config.js — CommonJS, plain JS
-const { defineConfig, Modules } = require("@medusajs/utils")
-
+// backend/medusa-config.cjs — CommonJS, plain JS (NO typing)
 const env = process.env
 const required = (k) => {
   const v = env[k]
@@ -10,7 +8,7 @@ const required = (k) => {
 
 const backendUrl = env.MEDUSA_BACKEND_URL || "http://localhost:9000"
 
-module.exports = defineConfig({
+module.exports = {
   projectConfig: {
     databaseUrl: required("DATABASE_URL"),
     databaseLogging: false,
@@ -26,14 +24,11 @@ module.exports = defineConfig({
     build: { rollupOptions: { external: ["@medusajs/dashboard"] } },
   },
 
-  admin: {
-    backendUrl,
-    disable: false,
-  },
+  admin: { backendUrl, disable: false },
 
   modules: [
     {
-      key: Modules.FILE,
+      key: "file",
       resolve: "@medusajs/file",
       options: {
         providers: [
@@ -61,13 +56,13 @@ module.exports = defineConfig({
     },
 
     ...(env.REDIS_URL ? [
-      { key: Modules.EVENT_BUS, resolve: "@medusajs/event-bus-redis", options: { redisUrl: env.REDIS_URL } },
-      { key: Modules.WORKFLOW_ENGINE, resolve: "@medusajs/workflow-engine-redis", options: { redis: { url: env.REDIS_URL } } },
+      { key: "event_bus", resolve: "@medusajs/event-bus-redis", options: { redisUrl: env.REDIS_URL } },
+      { key: "workflows", resolve: "@medusajs/workflow-engine-redis", options: { redis: { url: env.REDIS_URL } } },
     ] : []),
 
     ...(((env.SENDGRID_API_KEY && env.SENDGRID_FROM_EMAIL) ||
         (env.RESEND_API_KEY && env.RESEND_FROM_EMAIL)) ? [{
-      key: Modules.NOTIFICATION,
+      key: "notification",
       resolve: "@medusajs/notification",
       options: {
         providers: [
@@ -86,7 +81,7 @@ module.exports = defineConfig({
     }] : []),
 
     ...((env.STRIPE_API_KEY && env.STRIPE_WEBHOOK_SECRET) ? [{
-      key: Modules.PAYMENT,
+      key: "payment",
       resolve: "@medusajs/payment",
       options: {
         providers: [{
@@ -119,4 +114,4 @@ module.exports = defineConfig({
       },
     }] : []),
   ],
-})
+}
