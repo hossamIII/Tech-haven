@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "target": "es2019",
-    "allowJs": true,
-    "esModuleInterop": true,
     "module": "node16",
     "moduleResolution": "node16",
+    "esModuleInterop": true,
+    "allowJs": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "skipLibCheck": true,
@@ -25,8 +25,11 @@
   "ts-node": {
     "swc": true
   },
-  "include": ["src", "medusa-config.js"],
+  "include": [
+    "src"
+  ],
   "exclude": [
+    "medusa-config.*",
     "**/__tests__",
     "**/__fixtures__",
     "node_modules",
